@@ -3,44 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [1.3.2](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.3.1...@voiceflow-example/live-agent@1.3.2) (2025-01-14)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-## [1.3.1](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.3.0...@voiceflow-example/live-agent@1.3.1) (2024-12-03)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-# [1.3.0](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.24...@voiceflow-example/live-agent@1.3.0) (2024-11-18)
-
-### Features
-
-* release next react-chat library (DSN-2545) ([#316](https://github.com/voiceflow/react-chat/issues/316)) ([65722df](https://github.com/voiceflow/react-chat/commit/65722dfb438bc918bfb4fbb33aa0fc7c730eac38))
-
-## [1.2.24](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.23...@voiceflow-example/live-agent@1.2.24) (2024-10-24)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-## [1.2.23](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.22...@voiceflow-example/live-agent@1.2.23) (2024-10-16)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-## [1.2.22](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.21...@voiceflow-example/live-agent@1.2.22) (2024-09-27)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-## [1.2.21](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.20...@voiceflow-example/live-agent@1.2.21) (2024-09-25)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-## [1.2.20](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.19...@voiceflow-example/live-agent@1.2.20) (2024-09-25)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
-## [1.2.19](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.18...@voiceflow-example/live-agent@1.2.19) (2024-09-25)
-
-**Note:** Version bump only for package @voiceflow-example/live-agent
-
 ## [1.2.18](https://github.com/voiceflow/react-chat/compare/@voiceflow-example/live-agent@1.2.17...@voiceflow-example/live-agent@1.2.18) (2024-09-24)
 
 **Note:** Version bump only for package @voiceflow-example/live-agent
