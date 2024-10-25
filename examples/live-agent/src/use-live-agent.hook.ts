@@ -71,10 +71,10 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
           api.interact({ type: 'continue' });
         };
 
-        const subscribeToConversation = (platform: LiveAgentPlatform, userID: string, conversationID: string) => {
+        const subscribeToConversation = (platform: LiveAgentPlatform, affinityToken: string, sessionID: string, sessionKey: string) => {
           console.log('subscribeToConversation triggered') //CHIDI: This works
           socket = new WebSocket(
-            `ws://localhost:9099/${platform}/user/${userID}/conversation/${conversationID}/socket`
+            `ws://localhost:9099/${platform}/affinity/${affinityToken}/session/${sessionID}/sessionKey/${sessionKey}/socket`
           );
           socket.onmessage = (message) => {
             const event = JSON.parse(message.data);
@@ -106,30 +106,24 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
             .then(() => true)
             .catch(() => false);
 
-          // if (!isPlatformEnabled) {
-          //   addSystemTurn(
-          //     `Sorry, it appears that ${platform} has not been configured. Make sure to create a "./server/.env" file that contains the environment variable "${platform.toUpperCase()}_TOKEN" and that the value is a valid ${platform} API key. You also should run the server located in "./server" with the "yarn dev" command.`
-          //   );
-          //   continueConversation();
-          //   return;
-          // }
-
           isEnabled = true;
 
           const history = extractHistory(api);
           console.log(history); //CHIDI: Working!!
-          const prevUserID = sessionStorage.getItem(SESSION_USER_ID_KEY);
+          //const prevUserID = sessionStorage.getItem(SESSION_USER_ID_KEY);
 
-          const { userID, conversationID } = await client
+          const { tokens } = await client
             .post(`/${platform}/conversation`, {
-              json: { userID: prevUserID, history },
+              json: { history },
             })
             .json<any>();
 
-          sessionStorage.setItem(SESSION_USER_ID_KEY, userID);
-          sessionStorage.setItem(SESSION_CONVERSATION_ID_KEY, conversationID);
+          let sessionId = tokens.id;
+          let sessionKey = tokens.key;
+          // sessionStorage.setItem(SESSION_USER_ID_KEY, userID);
+          sessionStorage.setItem(SESSION_CONVERSATION_ID_KEY, sessionId); //CHIDI: not sure what i'm doing with this lol
 
-          subscribeToConversation(platform, userID, conversationID);
+          subscribeToConversation(platform, tokens.affinityToken, sessionId, sessionKey);
         };
 
         emitter.on('live_agent', talkToHuman);
