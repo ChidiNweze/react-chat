@@ -11,16 +11,16 @@ let intercom: IntercomService | null = null;
 
 export const intercomRoutes = (app: Application) => {
   console.log('routes were loaded 1'); //CHIDI: this works
-  app.ws(`/${LiveAgentPlatform.INTERCOM}/user/:userID/conversation/:conversationID/socket`, async (ws, req) => {
-    console.log('routes were loaded 2'); //CHIDI: this doesn't work
+  app.ws(`/${LiveAgentPlatform.INTERCOM}/affinity/:affinityToken/session/:sessionID/sessionKey/:sessionKey/socket`, async (ws, req) => {
+    console.log('socket connection successful methinks'); //CHIDI: this works
     if (!intercom) return ws.close(400);
-    console.log('connection not lost') //CHIDI: this doesn't work
+    console.log('connection not lost') //CHIDI: this works
 
-    const { userID, conversationID } = req.params;
+    const { affinityToken, sessionID, sessionKey } = req.params;
 
-    await intercom.subscribeToConversation(conversationID, ws, (event) =>
+    await intercom.subscribeToConversation(sessionID, ws, (event) =>
       match(event.type)
-        .with(SocketEvent.USER_MESSAGE, () => intercom?.sendUserReply(userID, conversationID, event.data.message))
+        .with(SocketEvent.USER_MESSAGE, () => intercom?.sendUserReply(affinityToken, sessionKey, sessionID, event.data.message))
         .otherwise(() => console.warn('unknown event', event))
     );
   });
@@ -53,10 +53,12 @@ export const intercomRoutes = (app: Application) => {
   app.post(`/${LiveAgentPlatform.INTERCOM}/conversation`, async (req, res) => {
     if (!intercom) return res.status(400).send('intercom not initialized');
 
-    const tokens = await intercom.createConversation(req.body.userID);
+    const tokens = await intercom.createConversation();
     await intercom.initiateChat(tokens);
+    let stringTokens = JSON.stringify(tokens);
+    console.log(`tokens from inside /conversation ws route: ${stringTokens}`)
 
-    //res.json({ userID, conversationID });
+    res.json({ tokens });
 
     //await intercom.sendHistory(userID, conversationID, req.body.history);
   });
