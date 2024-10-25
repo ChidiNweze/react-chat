@@ -10,6 +10,31 @@ export class IntercomService {
 
   private readonly conversations = new Map<string, WebSocket>();
 
+  // salesforce functions
+  private async getSessionID(): Promise<any> {
+    const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/System/SessionId'
+
+    try {
+      const response = await fetch(endpointUrl, {
+        method: 'GET',
+        headers: {
+          'X-LIVEAGENT-API-VERSION': '57',
+          'X-LIVEAGENT-AFFINITY': 'null',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
+  }
+
   private send(conversationID: string, event: { type: string; data: any }) {
     const ws = this.conversations.get(conversationID);
 
@@ -44,7 +69,38 @@ export class IntercomService {
     });
   }
 
-  public async createConversation(userID: string) {
+  public async createConversation(userID: string) {    
+    const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/System/SessionId'
+
+    try {
+      const response = await fetch(endpointUrl, {
+        method: 'GET',
+        headers: {
+          'X-LIVEAGENT-API-VERSION': '57',
+          'X-LIVEAGENT-AFFINITY': 'null',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log(data); // CHIDI: Remove console.log later
+      return data;
+    } catch (error) {
+      console.error('Error creating convo session:', error);
+      throw error;
+    }
+
+    // response structure:
+    // {
+    //   key: '2a8816ea-3903-403a-b8ea-95f82a9c0c35!1729874169013!tLRa2SQUXW2PC9PltgdMd414Jf0=',
+    //   id: '2a8816ea-3903-403a-b8ea-95f82a9c0c35',
+    //   clientPollTimeout: 40,
+    //   affinityToken: 'beb62388'
+    // }
+    
     let finalUserID = null;
     try {
       const existingUser = await this.intercom.contacts.find({ id: userID });
@@ -65,6 +121,45 @@ export class IntercomService {
     };
   }
 
+  public async initiateChat(tokens: any) {
+    const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/Chasitor/ChasitorInit'
+
+    try {
+      const response = await fetch(endpointUrl, {
+        method: 'POST',
+        headers: {
+          'X-LIVEAGENT-API-VERSION': '57',
+          'X-LIVEAGENT-AFFINITY': `${tokens.affinityToken}`,
+          'X-LIVEAGENT-SESSION-KEY': `${tokens.key}`,
+          'X-LIVEAGENT-SEQUENCE': '1'
+        },
+        body: JSON.stringify({
+            "organizationId": "00DHr00000A03xd",
+            "deploymentId": "572Hr000000IKUe",
+            "sessionId": `${tokens.sessionId}`,
+            "buttonId": "573Hr0000009vyt",
+            "screenResolution": "2560x1440",
+            "userAgent": "PostmanRuntime/7.39.0",
+            "language": "en-US",
+            "visitorName": "Test Contact",
+            "prechatDetails": [],
+            "prechatEntities": [], 
+            "receiveQueueUpdates": true,
+            "isPost": true
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log(response); //CHIDI: Remove console log later
+      return response;
+    } catch (error) {
+      console.error('Error initiating chat:', error);
+      throw error;
+    }
+  }
+
   public async sendHistory(userID: string, conversationID: string, history: Array<{ author: string; text: string }>) {
     for (const { author, text } of history) {
       await this.intercom.conversations.replyByIdAsUser({
@@ -80,6 +175,7 @@ export class IntercomService {
     ws: WebSocket,
     handler: (event: { type: string; data: any }) => any
   ) {
+    console.log('subscribe to convo called'); //CHIDI: 
     const conversation = await this.intercom.conversations.find({ id: conversationID }).catch(() => null);
     if (!conversation) return;
 
