@@ -41,6 +41,7 @@ const extractHistory = (api: RuntimeState['api']) =>
 
 export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
   return useMemo(() => {
+    console.log('uselivaagenthook triggered') //CHIDI: This IS working
     const client = new FetchClient({ baseURL: 'http://localhost:9099' });
 
     let socket: WebSocket | null = null;
@@ -48,6 +49,8 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
 
     return {
       extend: (api: RuntimeState['api']): RuntimeState['api'] => {
+        console.log('RuntimeState[api] class works'); //CHIDI:  This prints
+        
         const addSystemTurn = (message: string) =>
           api.addTurn({
             ...createTurn(TurnType.SYSTEM),
@@ -55,6 +58,7 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
           });
 
         const addUserTurn = async (message: string) => {
+          console.log('addUserTurn triggered') //CHIDI:
           api.addTurn({ ...createTurn(TurnType.USER), message });
 
           socket?.send(JSON.stringify({ type: SocketEvent.USER_MESSAGE, data: { message } }));
@@ -63,10 +67,12 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
         const continueConversation = () => {
           socket?.close();
           socket = null;
+          console.log('convo continued'); //CHIDI: not working
           api.interact({ type: 'continue' });
         };
 
         const subscribeToConversation = (platform: LiveAgentPlatform, userID: string, conversationID: string) => {
+          console.log('subscribeToConversation triggered') //CHIDI:
           socket = new WebSocket(
             `ws://localhost:9099/${platform}/user/${userID}/conversation/${conversationID}/socket`
           );
@@ -87,12 +93,14 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
         };
 
         const talkToRobot = () => {
+          console.log('talkToRobot triggered') //CHIDI:
           isEnabled = false;
           addSystemTurn('Returning you to the Voiceflow bot...');
           continueConversation();
         };
 
         const talkToHuman = async (platform: LiveAgentPlatform) => {
+          console.log('talkToHuman triggered') //CHIDI:
           const isPlatformEnabled = await client
             .head(`/${platform}`)
             .then(() => true)
