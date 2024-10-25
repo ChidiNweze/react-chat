@@ -50,7 +50,7 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
     return {
       extend: (api: RuntimeState['api']): RuntimeState['api'] => {
         console.log('RuntimeState[api] class works'); //CHIDI:  This prints
-        
+
         const addSystemTurn = (message: string) =>
           api.addTurn({
             ...createTurn(TurnType.SYSTEM),
@@ -67,12 +67,12 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
         const continueConversation = () => {
           socket?.close();
           socket = null;
-          console.log('convo continued'); //CHIDI: not working
+          console.log('convo continued'); //CHIDI: This is working
           api.interact({ type: 'continue' });
         };
 
         const subscribeToConversation = (platform: LiveAgentPlatform, userID: string, conversationID: string) => {
-          console.log('subscribeToConversation triggered') //CHIDI:
+          console.log('subscribeToConversation triggered') //CHIDI: This works
           socket = new WebSocket(
             `ws://localhost:9099/${platform}/user/${userID}/conversation/${conversationID}/socket`
           );
@@ -100,23 +100,24 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
         };
 
         const talkToHuman = async (platform: LiveAgentPlatform) => {
-          console.log('talkToHuman triggered') //CHIDI:
+          console.log('talkToHuman triggered') //CHIDI: This works
           const isPlatformEnabled = await client
             .head(`/${platform}`)
             .then(() => true)
             .catch(() => false);
 
-          if (!isPlatformEnabled) {
-            addSystemTurn(
-              `Sorry, it appears that ${platform} has not been configured. Make sure to create a "./server/.env" file that contains the environment variable "${platform.toUpperCase()}_TOKEN" and that the value is a valid ${platform} API key. You also should run the server located in "./server" with the "yarn dev" command.`
-            );
-            continueConversation();
-            return;
-          }
+          // if (!isPlatformEnabled) {
+          //   addSystemTurn(
+          //     `Sorry, it appears that ${platform} has not been configured. Make sure to create a "./server/.env" file that contains the environment variable "${platform.toUpperCase()}_TOKEN" and that the value is a valid ${platform} API key. You also should run the server located in "./server" with the "yarn dev" command.`
+          //   );
+          //   continueConversation();
+          //   return;
+          // }
 
           isEnabled = true;
 
           const history = extractHistory(api);
+          console.log(history); //CHIDI: Working!!
           const prevUserID = sessionStorage.getItem(SESSION_USER_ID_KEY);
 
           const { userID, conversationID } = await client
