@@ -10,31 +10,6 @@ export class IntercomService {
 
   private readonly conversations = new Map<string, WebSocket>();
 
-  // salesforce functions
-  private async getSessionID(): Promise<any> {
-    const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/System/SessionId'
-
-    try {
-      const response = await fetch(endpointUrl, {
-        method: 'GET',
-        headers: {
-          'X-LIVEAGENT-API-VERSION': '57',
-          'X-LIVEAGENT-AFFINITY': 'null',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Fetch error:', error);
-      throw error;
-    }
-  }
-
   private send(conversationID: string, event: { type: string; data: any }) {
     const ws = this.conversations.get(conversationID);
 
@@ -61,15 +36,45 @@ export class IntercomService {
     this.send(conversation.id, sendLiveAgentMessage(stripHtml(html).result));
   }
 
-  public async sendUserReply(userID: string, conversationID: string, message: string) {
-    await this.intercom.conversations.replyByIdAsUser({
-      id: conversationID,
-      intercomUserId: userID,
-      body: message,
-    });
+  public async sendUserReply(affinityToken: string, sessionKey: string, sessionID: string, message: string) {
+    const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/Chasitor/ChatMessage';
+
+    console.log(`affinityToken: ${affinityToken}`); //CHIDI: fine
+    console.log(`session key: ${sessionKey}`); //CHIDI: undefined
+    console.log(`session id: ${sessionID}`); //CHIDI: undefined
+    console.log(`message: ${message}`); //CHIDI: fine
+
+    try {
+      const response = await fetch(endpointUrl, {
+        method: 'POST',
+        headers: {
+          'X-LIVEAGENT-API-VERSION': '57',
+          'X-LIVEAGENT-AFFINITY': `${affinityToken}`,
+          'X-LIVEAGENT-SESSION-KEY': `${sessionKey}`,
+          'X-LIVEAGENT-SEQUENCE': '2' // CHIDI: need to increment this
+        },
+        body: JSON.stringify({ 
+            "text": `${message}`}),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log(response); //CHIDI: Remove console log later
+      return response;
+    } catch (error) {
+      console.error('Error sending message chat:', error);
+      throw error;
+    }
+
+    // await this.intercom.conversations.replyByIdAsUser({
+    //   id: conversationID,
+    //   intercomUserId: userID,
+    //   body: message,
+    // });
   }
 
-  public async createConversation(userID: string) {    
+  public async createConversation() {    
     const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/System/SessionId'
 
     try {
@@ -103,7 +108,7 @@ export class IntercomService {
     
     let finalUserID = null;
     try {
-      const existingUser = await this.intercom.contacts.find({ id: userID });
+      const existingUser = await this.intercom.contacts.find({ id: 'blah' });
       finalUserID = existingUser.id;
     } catch (e) {
       const user = await this.intercom.contacts.createLead();
@@ -171,16 +176,16 @@ export class IntercomService {
   }
 
   public async subscribeToConversation(
-    conversationID: string,
+    sessionID: string,
     ws: WebSocket,
     handler: (event: { type: string; data: any }) => any
   ) {
-    console.log('subscribe to convo called'); //CHIDI: 
-    const conversation = await this.intercom.conversations.find({ id: conversationID }).catch(() => null);
-    if (!conversation) return;
+    console.log('subscribe to convo called'); //CHIDI: this works!!
+    //const conversation = await this.intercom.conversations.find({ id: sessionID }).catch(() => null);
+    //if (!conversation) return;
 
     ws.on('message', (message) => handler(JSON.parse(message.toString())));
 
-    this.conversations.set(conversationID, ws);
+    this.conversations.set(sessionID, ws);
   }
 }
