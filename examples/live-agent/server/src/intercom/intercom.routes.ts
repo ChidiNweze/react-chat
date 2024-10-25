@@ -29,7 +29,7 @@ export const intercomRoutes = (app: Application) => {
     if (intercom) return res.send('ok');
 
     try {
-      intercom = new IntercomService();
+      intercom = new IntercomService(); //CHIDI: refactor with salesforce services
       res.send('ok');
     } catch {
       res.status(500).send('invalid API key');
@@ -53,10 +53,11 @@ export const intercomRoutes = (app: Application) => {
   app.post(`/${LiveAgentPlatform.INTERCOM}/conversation`, async (req, res) => {
     if (!intercom) return res.status(400).send('intercom not initialized');
 
-    const { userID, conversationID } = await intercom.createConversation(req.body.userID);
+    const tokens = await intercom.createConversation(req.body.userID);
+    await intercom.initiateChat(tokens);
 
-    res.json({ userID, conversationID });
+    //res.json({ userID, conversationID });
 
-    await intercom.sendHistory(userID, conversationID, req.body.history);
+    //await intercom.sendHistory(userID, conversationID, req.body.history);
   });
 };
