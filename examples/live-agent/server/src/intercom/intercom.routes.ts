@@ -10,8 +10,11 @@ import { IntercomTopic } from './intercom-topic.enum';
 let intercom: IntercomService | null = null;
 
 export const intercomRoutes = (app: Application) => {
+  console.log('routes were loaded 1'); //CHIDI: this works
   app.ws(`/${LiveAgentPlatform.INTERCOM}/user/:userID/conversation/:conversationID/socket`, async (ws, req) => {
+    console.log('routes were loaded 2'); //CHIDI: this doesn't work
     if (!intercom) return ws.close(400);
+    console.log('connection not lost') //CHIDI: this doesn't work
 
     const { userID, conversationID } = req.params;
 
