@@ -10,7 +10,7 @@ export class IntercomService {
 
   private readonly conversations = new Map<string, WebSocket>();
 
-  private send(conversationID: string, event: { type: string; data: any }) {
+  private send(conversationID: string, event: { type: string; data: any }) { // CHIDI: refactor this to use sessionID
     const ws = this.conversations.get(conversationID);
 
     ws?.send(JSON.stringify(event));
@@ -30,18 +30,18 @@ export class IntercomService {
     this.conversations.delete(conversation.id);
   }
 
-  public async sendAgentReply(conversation: any) {
+  public async sendAgentReply(conversation: any) { //CHIDI: edit this to poll the messages endpoint
     const html = conversation.conversation_parts.conversation_parts.map((part: any) => part.body).join('\n');
 
-    this.send(conversation.id, sendLiveAgentMessage(stripHtml(html).result));
+    this.send(conversation.id, sendLiveAgentMessage(stripHtml(html).result)); //CHIDI: only need to change conversationID to sessionID, and the message logic here
   }
 
   public async sendUserReply(affinityToken: string, sessionKey: string, sessionID: string, message: string) {
     const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/Chasitor/ChatMessage';
 
     console.log(`affinityToken: ${affinityToken}`); //CHIDI: fine
-    console.log(`session key: ${sessionKey}`); //CHIDI: undefined
-    console.log(`session id: ${sessionID}`); //CHIDI: undefined
+    console.log(`session key: ${sessionKey}`); //CHIDI: fine
+    console.log(`session id: ${sessionID}`); //CHIDI: fine
     console.log(`message: ${message}`); //CHIDI: fine
 
     try {
@@ -91,7 +91,6 @@ export class IntercomService {
       }
   
       const data = await response.json();
-      console.log(data); // CHIDI: Remove console.log later
       return data;
     } catch (error) {
       console.error('Error creating convo session:', error);
@@ -157,7 +156,6 @@ export class IntercomService {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log(response); //CHIDI: Remove console log later
       return response;
     } catch (error) {
       console.error('Error initiating chat:', error);

@@ -49,7 +49,6 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
 
     return {
       extend: (api: RuntimeState['api']): RuntimeState['api'] => {
-        console.log('RuntimeState[api] class works'); //CHIDI:  This prints
 
         const addSystemTurn = (message: string) =>
           api.addTurn({
@@ -58,7 +57,6 @@ export const useLiveAgent = (emitter: Emitter<LiveAgentEvents>) => {
           });
 
         const addUserTurn = async (message: string) => {
-          console.log('addUserTurn triggered') //CHIDI:
           api.addTurn({ ...createTurn(TurnType.USER), message });
 
           socket?.send(JSON.stringify({ type: SocketEvent.USER_MESSAGE, data: { message } }));
