@@ -11,6 +11,8 @@ export class IntercomService {
 
   private readonly conversations = new Map<string, WebSocket>();
 
+  private messageCount = 1;
+
   private send(sessionID: string, event: { type: string; data: any }) {
     const ws = this.conversations.get(sessionID);
 
@@ -63,6 +65,7 @@ export class IntercomService {
 
   public async sendUserReply(affinityToken: string, sessionKey: string, sessionID: string, message: string) {
     const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/Chasitor/ChatMessage';
+    this.messageCount = this.messageCount + 1;
 
     try {
       const response = await fetch(endpointUrl, {
@@ -71,7 +74,7 @@ export class IntercomService {
           'X-LIVEAGENT-API-VERSION': '57',
           'X-LIVEAGENT-AFFINITY': `${affinityToken}`,
           'X-LIVEAGENT-SESSION-KEY': `${sessionKey}`,
-          'X-LIVEAGENT-SEQUENCE': '2' // CHIDI: need to increment this
+          'X-LIVEAGENT-SEQUENCE': `${this.messageCount}` // CHIDI: need to increment this
         },
         body: JSON.stringify({ 
             "text": `${message}`}),
