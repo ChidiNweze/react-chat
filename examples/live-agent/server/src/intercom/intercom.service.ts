@@ -2,6 +2,7 @@
 import { Client as IntercomClient } from 'intercom-client';
 import { stripHtml } from 'string-strip-html';
 import { WebSocket } from 'ws';
+import axios from 'axios';
 
 import { connectLiveAgent, disconnectLiveAgent, sendLiveAgentMessage } from '../sockets';
 
@@ -10,18 +11,18 @@ export class IntercomService {
 
   private readonly conversations = new Map<string, WebSocket>();
 
-  private send(conversationID: string, event: { type: string; data: any }) { // CHIDI: refactor this to use sessionID
-    const ws = this.conversations.get(conversationID);
+  private send(sessionID: string, event: { type: string; data: any }) {
+    const ws = this.conversations.get(sessionID);
 
     ws?.send(JSON.stringify(event));
   }
-
+//CHIDI: Need to change this
   public async connectAgent(conversation: any) {
     const agent = await this.intercom.admins.find({ id: conversation.admin_assignee_id });
 
     this.send(conversation.id, connectLiveAgent(conversation, agent));
   }
-
+//CHIDI: Need to change this
   public async disconnectAgent(conversation: any) {
     const agent = await this.intercom.admins.find({ id: conversation.admin_assignee_id });
 
@@ -30,19 +31,38 @@ export class IntercomService {
     this.conversations.delete(conversation.id);
   }
 
-  public async sendAgentReply(conversation: any) { //CHIDI: edit this to poll the messages endpoint
-    const html = conversation.conversation_parts.conversation_parts.map((part: any) => part.body).join('\n');
+  public async sendAgentReply(affinityToken: string, sessionKey: string, sessionID: string) {
+    let agent_reply = "";
+    try {
+      const response = await axios.get('https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/System/Messages', {
+        headers: {
+          'X-LIVEAGENT-API-VERSION': '57',
+          'X-LIVEAGENT-AFFINITY': `${affinityToken}`,
+          'X-LIVEAGENT-SESSION-KEY': `${sessionKey}`
+        },
+      });
 
-    this.send(conversation.id, sendLiveAgentMessage(stripHtml(html).result)); //CHIDI: only need to change conversationID to sessionID, and the message logic here
+      const agent_messages = response.data.messages;
+      
+  
+      if (agent_messages && agent_messages.length > 0) {
+        for (let i = 0; i < agent_messages.length; i++) {
+          let message = agent_messages[i];
+          
+          if (message["type"] == "ChatMessage") {
+            agent_reply = message["message"]["text"];
+            return agent_reply;
+          }
+        }
+      }
+    } catch (error) {
+      //CHIDI: sketchy error-handling due to polling
+      //console.error('Error polling messages:', error); 
+    }
   }
 
   public async sendUserReply(affinityToken: string, sessionKey: string, sessionID: string, message: string) {
     const endpointUrl = 'https://d.la3-c1-ia7.salesforceliveagent.com/chat/rest/Chasitor/ChatMessage';
-
-    console.log(`affinityToken: ${affinityToken}`); //CHIDI: fine
-    console.log(`session key: ${sessionKey}`); //CHIDI: fine
-    console.log(`session id: ${sessionID}`); //CHIDI: fine
-    console.log(`message: ${message}`); //CHIDI: fine
 
     try {
       const response = await fetch(endpointUrl, {
@@ -60,18 +80,11 @@ export class IntercomService {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log(response); //CHIDI: Remove console log later
       return response;
     } catch (error) {
       console.error('Error sending message chat:', error);
       throw error;
     }
-
-    // await this.intercom.conversations.replyByIdAsUser({
-    //   id: conversationID,
-    //   intercomUserId: userID,
-    //   body: message,
-    // });
   }
 
   public async createConversation() {    
@@ -104,25 +117,6 @@ export class IntercomService {
     //   clientPollTimeout: 40,
     //   affinityToken: 'beb62388'
     // }
-    
-    let finalUserID = null;
-    try {
-      const existingUser = await this.intercom.contacts.find({ id: 'blah' });
-      finalUserID = existingUser.id;
-    } catch (e) {
-      const user = await this.intercom.contacts.createLead();
-      finalUserID = user.id;
-    }
-
-    const conversation = await this.intercom.conversations.create({
-      userId: finalUserID,
-      body: '<strong>A Webchat user has requested to speak with a Live Agent. The following is a transcript of the conversation with the Voiceflow Assistant:</strong>',
-    });
-
-    return {
-      userID: finalUserID,
-      conversationID: conversation.conversation_id!,
-    };
   }
 
   public async initiateChat(tokens: any) {
@@ -178,9 +172,6 @@ export class IntercomService {
     ws: WebSocket,
     handler: (event: { type: string; data: any }) => any
   ) {
-    console.log('subscribe to convo called'); //CHIDI: this works!!
-    //const conversation = await this.intercom.conversations.find({ id: sessionID }).catch(() => null);
-    //if (!conversation) return;
 
     ws.on('message', (message) => handler(JSON.parse(message.toString())));
 
