@@ -1,11 +1,12 @@
 import { AssistantOptions, ChatConfig } from '@voiceflow/react-chat';
 
-const IMAGE = 'https://picsum.photos/seed/1/200/300';
-const AVATAR = 'https://picsum.photos/seed/1/80/80';
+const IMAGE = 'https://www.ci-portal.de/wp-content/uploads/hertz.jpg';
+const AVATAR = 'https://www.ci-portal.de/wp-content/uploads/hertz.jpg';
 
 export const ASSISTANT: AssistantOptions = AssistantOptions.parse({
-  title: 'Live Agent Demo',
-  description: 'Demonstration of integrating Voiceflow with Intercom.',
+  title: 'Hertz - Live Agent Demo',
+  color: '#231f20',
+  description: 'Demonstration of integrating Voiceflow with Salesforce Live Chat',
   image: IMAGE,
   avatar: AVATAR,
 });
