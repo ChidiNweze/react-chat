@@ -39,7 +39,7 @@ export const intercomRoutes = (app: Application) => {
     }
 
     // Polling loop
-  const pollInterval = setInterval(pollForAgentMessages, 5000);
+  const pollInterval = setInterval(pollForAgentMessages, 2000);
   }
   );
 
