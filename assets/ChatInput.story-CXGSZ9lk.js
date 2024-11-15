@@ -1,0 +1,5 @@
+import{j as l}from"./jsx-runtime-DRTy3Uxn.js";import{C as o}from"./index-B792wbPy.js";import"./index-BBkUAzwr.js";import"./device-WPWeBsw9.js";import"./constants-CnzOgqsw.js";import"./index-DMkto-UT.js";import"./index-8wHEbfWR.js";import"./top-caret-CFqa3nzJ.js";import"./tag-CD_1nE8q.js";import"./animation-LM1V2pjp.js";import"./index-k-mBE7b6.js";import"./variants-BbyesEZ0.js";import"./index-D9IMDxHf.js";import"./functional-ii7S4iDS.js";import"./extends-CF3RwP-h.js";const P={title:"Components/Chat/ChatInput",component:o,args:{value:"",placeholder:""},parameters:{controls:{include:["value","placeholder","onValueChange"]}},render:i=>l.jsx(o.Controlled,{...i})},r={},e={args:{placeholder:"Message…"}};var t,a,s;r.parameters={...r.parameters,docs:{...(t=r.parameters)==null?void 0:t.docs,source:{originalSource:"{}",...(s=(a=r.parameters)==null?void 0:a.docs)==null?void 0:s.source}}};var p,m,c;e.parameters={...e.parameters,docs:{...(p=e.parameters)==null?void 0:p.docs,source:{originalSource:`{
+  args: {
+    placeholder: 'Message…'
+  }
+}`,...(c=(m=e.parameters)==null?void 0:m.docs)==null?void 0:c.source}}};export{r as Default,e as Placeholder,P as default};
