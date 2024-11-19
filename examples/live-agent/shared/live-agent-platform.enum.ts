@@ -1,3 +1,3 @@
 export enum LiveAgentPlatform {
-  INTERCOM = 'intercom',
+  INTERCOM = 'salesforce',
 }
