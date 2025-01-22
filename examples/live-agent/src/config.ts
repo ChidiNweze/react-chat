@@ -1,12 +1,12 @@
 import { AssistantOptions, ChatConfig } from '@voiceflow/react-chat';
 
-const IMAGE = 'https://companieslogo.com/img/orig/RIVN-6c24fd1f.png?t=1720244493';
-const AVATAR = 'https://companieslogo.com/img/orig/RIVN-6c24fd1f.png?t=1720244493';
+const IMAGE = 'https://cdn.worldvectorlogo.com/logos/rivian.svg';
+const AVATAR = 'https://cdn.worldvectorlogo.com/logos/rivian.svg';
 
 export const ASSISTANT: AssistantOptions = AssistantOptions.parse({
-  title: 'Scout',
+  title: "Rivian",
   color: '#040404',
-  description: 'Rivian AI Guide',
+  description: "Demonstrating Live Agent Hand-Off with Salesforce",
   watermark: false,
   image: IMAGE,
   avatar: AVATAR,
